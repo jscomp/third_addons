@@ -19,7 +19,7 @@
     'demo': [
     ],
     'data': [
-        'wizard/stock_picking_in_merge.xml',
+        'wizards/stock_picking_in_merge.xml',
     ],
     'test': [
     ],
