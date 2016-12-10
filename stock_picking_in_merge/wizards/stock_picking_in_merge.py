@@ -44,25 +44,33 @@ class stock_picking_in_merge(models.TransientModel):
         for picking_id in picking_ids:
             operation_ids = operation_obj.search(
                 [('picking_id', '=', picking_id.id), ('product_id', 'in', product_list)])
-            for operation_id in operation_ids:
-                if operation_id.product_qty < product_dict.get(operation_id.product_id):
-                    product_dict[operation_id.product_id] = product_dict.get(
-                        operation_id.product_id) - operation_id.product_qty
-                    operation_lot_obj.create({'operation_id': operation_id.id,
-                                              'lot_name': product_lot_dict[picking_id][operation_id.product_id],
-                                              'qty': operation_id.product_qty})
-                else:
-                    product_list.remove(operation_id.product_id.id)
-                    operation_lot_obj.create({'operation_id': operation_id.id,
-                                              'lot_name': product_lot_dict[picking_id][operation_id.product_id],
-                                              'qty': product_dict.get(operation_id.product_id)})
-                    product_dict[operation_id.product_id] = 0
+            if operation_ids:
+                for operation_id in operation_ids:
                     print
-                operation_id.save()
-            return_res = picking_id.do_new_transfer()
-            if type(return_res) == dict:
-                if return_res.get('res_model') == 'stock.backorder.confirmation':
-                    self.env['stock.backorder.confirmation'].browse(return_res.get('res_id')).process()
+                    if operation_id.product_qty < product_dict.get(operation_id.product_id):
+                        product_dict[operation_id.product_id] = product_dict.get(
+                            operation_id.product_id) - operation_id.product_qty
+                        if operation_id.product_id.tracking == 'lot':
+                            operation_lot_obj.create({'operation_id': operation_id.id,
+                                                  'lot_name': product_lot_dict[picking_id][operation_id.product_id],
+                                                  'qty': operation_id.product_qty})
+                        else:
+                            operation_id.write({'qty_done':operation_id.product_qty})
+                    else:
+                        product_list.remove(operation_id.product_id.id)
+                        if operation_id.product_id.tracking == 'lot':
+                            operation_lot_obj.create({'operation_id': operation_id.id,
+                                                  'lot_name': product_lot_dict[picking_id][operation_id.product_id],
+                                                  'qty': product_dict.get(operation_id.product_id)})
+                        else:
+                            operation_id.write({'qty_done':product_dict.get(operation_id.product_id)})
+                        product_dict[operation_id.product_id] = 0
+                    if operation_id.product_id.tracking == 'lot':
+                        operation_id.save()
+                return_res = picking_id.do_new_transfer()
+                if type(return_res) == dict:
+                    if return_res.get('res_model') == 'stock.backorder.confirmation':
+                        self.env['stock.backorder.confirmation'].browse(return_res.get('res_id')).process()
         return True
 
     # 确认合并
@@ -76,7 +84,6 @@ class stock_picking_in_merge(models.TransientModel):
         product_dict = {}  # {产品:数量}
         purchase_dict = {}  # {产品:{入库单:数量}}
         select_ids = str(self._context.get('active_ids'))
-        print select_ids,'1111111111'
         for picking_id in picking_ids:
             # 获取业务伙伴默认值
             if partner_id and picking_id.partner_id != partner_id:
@@ -111,24 +118,25 @@ class stock_picking_in_merge(models.TransientModel):
         lot_obj = self.env['stock.picking.in.merge.lot']
         lot_line_obj = self.env['stock.picking.in.merge.lot.line']
         for line in res_id.line_ids:
-            lot_id = lot_obj.create({'line_id': line.id, 'product_id': line.product_id.id, 'qty_done': line.qty_done})
-            for key, value in purchase_dict[line.product_id].items():
-                # 获取每个入库单对应的采购单
-                purchase_id = purchase_obj.search([('name', '=', key.origin)])
-                if purchase_id:
-                    if not key.backorder_id:
-                        lot_line_obj.create(
-                            {'picking_id': key.id, 'lot_id': lot_id.id, 'lot_name': purchase_id[0].partner_ref,
-                             'qty_done': value})
-                    else:
-                        picking_id_obj = key.backorder_id
-                        pick_res = 0
-                        while picking_id_obj:
-                            pick_res += 1
-                            picking_id_obj = picking_id_obj.backorder_id
-                        lot_line_obj.create({'picking_id': key.id, 'lot_id': lot_id.id,
-                                             'lot_name': purchase_id[0].partner_ref + '[' + str(pick_res) + ']',
-                                             'qty_done': value})
+            if line.product_id.tracking:
+                lot_id = lot_obj.create({'line_id': line.id, 'product_id': line.product_id.id, 'qty_done': line.qty_done})
+                for key, value in purchase_dict[line.product_id].items():
+                    # 获取每个入库单对应的采购单
+                    purchase_id = purchase_obj.search([('name', '=', key.origin)])
+                    if purchase_id:
+                        if not key.backorder_id:
+                            lot_line_obj.create(
+                                {'picking_id': key.id, 'lot_id': lot_id.id, 'lot_name': purchase_id[0].partner_ref,
+                                 'qty_done': value})
+                        else:
+                            picking_id_obj = key.backorder_id
+                            pick_res = 0
+                            while picking_id_obj:
+                                pick_res += 1
+                                picking_id_obj = picking_id_obj.backorder_id
+                            lot_line_obj.create({'picking_id': key.id, 'lot_id': lot_id.id,
+                                                 'lot_name': purchase_id[0].partner_ref + '[' + str(pick_res) + ']',
+                                                 'qty_done': value})
 
         view = self.env['ir.model.data'].xmlid_to_res_id('stock_picking_in_merge.form_stock_picking_in_merge')
         return {
@@ -151,6 +159,7 @@ class stock_picking_in_merge_line(models.TransientModel):
 
     merge_id = fields.Many2one('stock.picking.in.merge', u'合并入库单')
     product_id = fields.Many2one('product.product', u'产品明细')
+    tracking = fields.Selection([('serial', 'By Unique Serial Number'), ('lot', 'By Lots'), ('none', 'No Tracking')], related='product_id.tracking')
     qty_done = fields.Float(u'待办')
     product_qty = fields.Float(u'完成', compute="get_product_qty")
     order_line = fields.One2many('stock.picking.in.merge.lot', 'line_id', u'批次')

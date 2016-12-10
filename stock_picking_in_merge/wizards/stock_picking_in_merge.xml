@@ -51,9 +51,10 @@
                     <field name="line_ids">
                         <tree editable="bottom" create="false">
                             <field name="product_id" readonly="True"/>
+                            <field name="tracking" invisible="True"/>
                             <field name="qty_done" readonly="True"/>
                             <field name="product_qty" readonly="True"/>
-                            <button name="split_lot" string="Lot Split" type="object" icon="fa-list"/>
+                            <button name="split_lot" string="Lot Split" type="object" icon="fa-list" attrs="{'invisible':[('tracking','!=','lot')]}"/>
                         </tree>
                     </field>
                     <footer>
