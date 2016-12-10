@@ -37,7 +37,10 @@ class stock_picking_in_merge(models.TransientModel):
             product_list.append(line.product_id.id)
             for line_1 in line.order_line:
                 for line_2 in line_1.order_line:
-                    product_lot_dict[line_2.picking_id] = {line_1.product_id: line_2.lot_name}
+                    if line_2.picking_id in product_lot_dict:
+                        product_lot_dict[line_2.picking_id][line_1.product_id] = line_2.lot_name
+                    else:
+                        product_lot_dict[line_2.picking_id] = {line_1.product_id: line_2.lot_name}
         operation_obj = self.env['stock.pack.operation']
         operation_lot_obj = self.env['stock.pack.operation.lot']
         # 循环处理所有的入库单
