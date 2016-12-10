@@ -122,7 +122,7 @@ class stock_picking_in_merge(models.TransientModel):
         move_obj = self.env['stock.move']
         lot_line_obj = self.env['stock.picking.in.merge.lot.line']
         for line in res_id.line_ids:
-            if line.product_id.tracking:
+            if line.product_id.tracking == 'lot':
                 lot_id = lot_obj.create({'line_id': line.id, 'product_id': line.product_id.id, 'qty_done': line.qty_done})
                 for key, value in purchase_dict[line.product_id].items():
                     # 获取每个入库单对应的采购单
@@ -173,15 +173,8 @@ class stock_picking_in_merge_line(models.TransientModel):
     product_id = fields.Many2one('product.product', u'产品明细')
     tracking = fields.Selection([('serial', 'By Unique Serial Number'), ('lot', 'By Lots'), ('none', 'No Tracking')], related='product_id.tracking')
     qty_done = fields.Float(u'待办')
-    product_qty = fields.Float(u'完成', compute="get_product_qty")
+    product_qty = fields.Float(u'完成')
     order_line = fields.One2many('stock.picking.in.merge.lot', 'line_id', u'批次')
-
-    # 计算批次中的数量
-    def get_product_qty(self):
-        for ids in self:
-            ids.product_qty = 0
-            for line in ids.order_line:
-                ids.product_qty += line.product_qty
 
     # 查看批次
     @api.multi
@@ -225,6 +218,7 @@ class stock_picking_in_merge_lot(models.TransientModel):
     @api.multi
     def btn_save(self):
         view = self.env['ir.model.data'].xmlid_to_res_id('stock_picking_in_merge.form_stock_picking_in_merge')
+        self.env['stock.picking.in.merge.line'].browse(self._context.get('active_id')).write({'product_qty':self.product_qty})
         return {
             'name': _('合并入库'),
             'type': 'ir.actions.act_window',
