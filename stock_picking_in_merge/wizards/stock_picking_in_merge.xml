@@ -53,7 +53,7 @@
                             <field name="product_id" readonly="True"/>
                             <field name="tracking" invisible="True"/>
                             <field name="qty_done" readonly="True"/>
-                            <field name="product_qty" readonly="True"/>
+                            <field name="product_qty" attrs="{'readonly':[('tracking','=','lot')]}"/>
                             <button name="split_lot" string="Lot Split" type="object" icon="fa-list" attrs="{'invisible':[('tracking','!=','lot')]}"/>
                         </tree>
                     </field>

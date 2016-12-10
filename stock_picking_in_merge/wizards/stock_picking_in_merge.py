@@ -119,6 +119,7 @@ class stock_picking_in_merge(models.TransientModel):
         res_id = self.create({'select_ids':select_ids,'partner_id': partner_id.id, 'location_id': location.id, 'line_ids': line_ids})
         # 循环产品，为产品创建对应的批次
         lot_obj = self.env['stock.picking.in.merge.lot']
+        move_obj = self.env['stock.move']
         lot_line_obj = self.env['stock.picking.in.merge.lot.line']
         for line in res_id.line_ids:
             if line.product_id.tracking:
@@ -127,19 +128,27 @@ class stock_picking_in_merge(models.TransientModel):
                     # 获取每个入库单对应的采购单
                     purchase_id = purchase_obj.search([('name', '=', key.origin)])
                     if purchase_id:
-                        if not key.backorder_id:
-                            lot_line_obj.create(
-                                {'picking_id': key.id, 'lot_id': lot_id.id, 'lot_name': purchase_id[0].partner_ref,
-                                 'qty_done': value})
+                        if purchase_id[0].partner_ref:
+                            if not key.backorder_id:
+                                lot_line_obj.create(
+                                    {'picking_id': key.id, 'lot_id': lot_id.id, 'lot_name': purchase_id[0].partner_ref,
+                                     'qty_done': value})
+                            else:
+                                picking_id_obj = key.backorder_id
+                                pick_res = 0
+                                while picking_id_obj:
+                                    move_ids = move_obj.search([('picking_id','=',picking_id_obj.id),('product_id','=',line.product_id.id)])
+                                    if move_ids:
+                                        pick_res += 1
+                                    picking_id_obj = picking_id_obj.backorder_id
+                                if pick_res:
+                                    lot_name = purchase_id[0].partner_ref + '[' + str(pick_res) + ']'
+                                else:
+                                    lot_name = purchase_id[0].partner_ref
+                                lot_line_obj.create({'picking_id': key.id, 'lot_id': lot_id.id,
+                                                     'lot_name': lot_name,'qty_done': value})
                         else:
-                            picking_id_obj = key.backorder_id
-                            pick_res = 0
-                            while picking_id_obj:
-                                pick_res += 1
-                                picking_id_obj = picking_id_obj.backorder_id
-                            lot_line_obj.create({'picking_id': key.id, 'lot_id': lot_id.id,
-                                                 'lot_name': purchase_id[0].partner_ref + '[' + str(pick_res) + ']',
-                                                 'qty_done': value})
+                            raise UserError(_(u'采购订单%s无法获取供应商参考，请手工指定批次号！')%purchase_id.name)
 
         view = self.env['ir.model.data'].xmlid_to_res_id('stock_picking_in_merge.form_stock_picking_in_merge')
         return {
