@@ -4,7 +4,6 @@
 from openerp import api, fields, models, _
 from openerp.exceptions import UserError, ValidationError
 
-
 class stock_picking_in_merge(models.TransientModel):
     """
         合并处理入库单
@@ -15,6 +14,8 @@ class stock_picking_in_merge(models.TransientModel):
     location_id = fields.Many2one('stock.location', u'目标库位')
     line_ids = fields.One2many('stock.picking.in.merge.line', 'merge_id', u'产品')
     select_ids = fields.Char(u'选中的调拨单')
+    product_ids = fields.Many2many('product.product','merge_product_rel','merge_id','product_id',u'产品')
+    picking_ids = fields.Many2many('stock.picking','merge_picking_rel','merge_id','picking_id',u'入库单', default=lambda self:self.env['stock.picking'].browse(self._context.get('active_ids')))
 
     # 合并入库
     @api.multi
@@ -87,6 +88,7 @@ class stock_picking_in_merge(models.TransientModel):
         product_dict = {}  # {产品:数量}
         purchase_dict = {}  # {产品:{入库单:数量}}
         select_ids = str(self._context.get('active_ids'))
+        product_list = self.product_ids.ids
         for picking_id in picking_ids:
             # 获取业务伙伴默认值
             if partner_id and picking_id.partner_id != partner_id:
@@ -101,9 +103,8 @@ class stock_picking_in_merge(models.TransientModel):
                 raise UserError(_(u'只有部分可用和可用状态的的入库单才能合并入库！'))
             if picking_id.picking_type_id.code != 'incoming':
                 raise UserError(_(u'只有入库单才能合并入库！'))
-
             for line in picking_id.move_lines_related:
-                if line.state == 'assigned':
+                if line.state == 'assigned' and (line.product_id.id in product_list or not product_list):
                     if line.product_id in product_dict:
                         product_dict[line.product_id] += line.product_uom_qty
                         if picking_id in purchase_dict[line.product_id]:
@@ -281,3 +282,28 @@ class stock_picking_inherit(models.Model):
             if partner_ref:
                 res.write({'partner_ref': partner_ref})
         return res
+
+class product_product_inherit(models.Model):
+    """
+        修改产品查询方法
+    """
+    _inherit = 'product.product'
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        if self._context.get('merge_tfs'):
+            if self._context.get('picking_ids') and self._context.get('picking_ids')[0][2]:
+                picking_obj = self.env['stock.picking']
+                picking_ids = picking_obj.browse(self._context.get('picking_ids')[0][2])
+                # 获取选择的入库单中的所有产品
+                product_list = []
+                for picking_id in picking_ids:
+                    for line in picking_id.move_lines_related:
+                        if line.state == 'assigned':
+                            product_list.append(line.product_id.id)
+                if product_list:
+                    product_list = list(set(product_list))
+                    args.append(('id','in',product_list))
+            else:
+                raise UserError(_(u'您未选择入库单，请先选择入库单！'))
+        return super(product_product_inherit, self).search(args, offset, limit, order, count=count)

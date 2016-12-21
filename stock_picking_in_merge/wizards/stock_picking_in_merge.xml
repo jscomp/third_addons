@@ -24,6 +24,10 @@
                     <li>* 必须是入库单</li>
                     <li>* 目的库位相同</li>
                     <li>* 状态必须为部分可用或者是可用</li>
+                    <li>* 选择需要入库的产品，不选择默认为所有产品</li>
+                    <label string="产品: "></label>
+                    <field name="picking_ids" invisible="True"/>
+                    <field name="product_ids" widget="many2many_tags" context="{'merge_tfs':True,'picking_ids':picking_ids}"></field>
                     <footer>
                         <button string='合并' name="btn_done" type="object" class="btn-primary"/>OR
                         <button string="取消" class="btn-default" special="cancel"/>

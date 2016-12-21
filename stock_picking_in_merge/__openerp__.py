@@ -13,7 +13,7 @@
     """,
     'author': "linyinhuan@139.com",
     'website': "http://www.jscomp.cn",
-    'depends': ['base','stock','purchase','sale'],
+    'depends': ['base','stock','purchase','sale','product'],
     'category': 'stock',
     'sequence': 13,
     'demo': [
