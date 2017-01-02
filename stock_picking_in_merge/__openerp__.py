@@ -9,10 +9,11 @@
         1：在入库单订单列表更多中增加按钮“合并入库”
         2：选择需要合并入库的入库单，点击合并入库按钮
         3：选择入库的产品数量，根据时间先后的顺序处理选中的订单
+        4：销售订单生成出库单和采购订单生成入库单增加对应业务伙伴的业务伙伴参考信息
     """,
     'author': "linyinhuan@139.com",
     'website': "http://www.jscomp.cn",
-    'depends': ['base','stock'],
+    'depends': ['base','stock','purchase','sale','product'],
     'category': 'stock',
     'sequence': 13,
     'demo': [
