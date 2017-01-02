@@ -1,0 +1,164 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_invoice_merge
+#
+# Translators:
+# OCA Transbot <transbot@odoo-community.org>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 9.0c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-12-09 03:38+0000\n"
+"PO-Revision-Date: 2016-12-24 13:09+0800\n"
+"Last-Translator: OCA Transbot <transbot@odoo-community.org>, 2016\n"
+"Language-Team: Chinese (China) (https://www.transifex.com/oca/teams/23907/zh_CN/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.8.11\n"
+
+#. module: account_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid "Are you sure you want to merge these invoices ?"
+msgstr "您确认合并这些发票？"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:31
+#, python-format
+msgid "At least one of the selected invoices is %s!"
+msgstr "至少选择其中发票之一为%s!"
+
+#. module: account_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid "Cancel"
+msgstr "取消"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_invoice_merge
+#: model:ir.model,name:account_invoice_merge.model_account_invoice
+msgid "Invoice"
+msgstr "发票"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_date_invoice
+msgid "Invoice Date"
+msgstr "开票日期"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_keep_references
+msgid "Keep references from original invoices"
+msgstr "保留原始发票的参考"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge___last_update
+msgid "Last Modified on"
+msgstr "最近修改日期"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: account_invoice_merge
+#: model:ir.model.fields,field_description:account_invoice_merge.field_invoice_merge_write_date
+msgid "Last Updated on"
+msgstr "上次更新日期"
+
+#. module: account_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid "Merge Invoices"
+msgstr "合并发票"
+
+#. module: account_invoice_merge
+#: model:ir.actions.act_window,name:account_invoice_merge.action_view_invoice_merge
+#: model:ir.model,name:account_invoice_merge.model_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid "Merge Partner Invoice"
+msgstr "合并业务伙伴发票"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:38
+#, python-format
+msgid "Not all invoices are at the same company!"
+msgstr "并不是所有的凭据都在同一家公司 ！"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:47
+#, python-format
+msgid "Not all invoices are at the same currency!"
+msgstr "并不是所有的凭据都使用相同的货币 ！"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:50
+#, python-format
+msgid "Not all invoices are at the same journal!"
+msgstr "并不是所有的凭据都在相同的记账科目 ！"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:41
+#, python-format
+msgid "Not all invoices are for the same partner!"
+msgstr "并不是所有的凭据都是相同的业务伙伴 ！"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:44
+#, python-format
+msgid "Not all invoices are of the same type!"
+msgstr "并不是所有的凭据都是相同类型！"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:35
+#, python-format
+msgid "Not all invoices use the same account!"
+msgstr "并不是所有的凭据都用相同账号！"
+
+#. module: account_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid ""
+"Please note that:<br/><br/>\n"
+"Invoices will only be merged if:<br/>\n"
+"* Invoices are in draft<br/>\n"
+"* Invoices belong to the same partner<br/>\n"
+"* Invoices are have same company, partner, address, currency, journal, salesman, account, type<br/><br/>\n"
+"Lines will only be merged if:<br/>\n"
+"* Invoice lines are exactly the same except for the product,quantity and unit<br/>"
+msgstr ""
+"请注意:<br/><br/>\n"
+"仅在符合下列条件的发票才能合并：<br/>\n"
+"* 发票在草稿状态<br/>\n"
+"* 发票都属于同一业务伙伴<br/>\n"
+"* 发票有相同的公司、业务伙伴、地址、币种、记账科目、销售员、账号、类型<br/><br/>\n"
+"仅在符合下列条件的发票明细才能合并:<br/>\n"
+"* Invoice lines are exactly the same except for the product,quantity and unit<br/>"
+
+#. module: account_invoice_merge
+#: code:addons/account_invoice_merge/wizard/invoice_merge.py:24
+#, python-format
+msgid "Please select multiple invoice to merge in the list view."
+msgstr "请在列表里选择多个发票来合并。"
+
+#. module: account_invoice_merge
+#: model:ir.ui.view,arch_db:account_invoice_merge.view_invoice_merge
+msgid "or"
+msgstr "或"
