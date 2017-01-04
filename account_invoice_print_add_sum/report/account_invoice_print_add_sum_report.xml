@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report
+            string="对账单"
+            id="action_account_invoice_tfs"
+            model="account.invoice.print.add"
+            name="account_invoice_print_add_sum.account_invoice_tfs"
+            file="account_invoice_print_add_sum.account_invoice_tfs"
+            report_type="qweb-pdf"
+            menu="False"
+        />
+
+    </data>
+</openerp>
