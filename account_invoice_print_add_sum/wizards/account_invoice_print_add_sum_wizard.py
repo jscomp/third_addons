@@ -24,7 +24,14 @@ class account_invoice_print_add(models.TransientModel):
         if invoice_line_dict:
             line_obj = self.env['account.invoice.print.add.line']
             for key, value in invoice_line_dict.items():
-                line_obj.create({'name':key.id if key else '','add_id':self.id,'invoice_line_ids':value})
+                if key:
+                    if key.partner_ref:
+                        name = key.name+'('+key.partner_ref+')'
+                    else:
+                        name = key.name
+                else:
+                    name = ''
+                line_obj.create({'name':name,'add_id':self.id,'invoice_line_ids':value})
 
         return self.env['report'].get_action(self, 'account_invoice_print_add_sum.account_invoice_tfs')
 
@@ -38,7 +45,7 @@ class account_invoice_print_add_line(models.TransientModel):
     invoice_line_ids = fields.Many2many('account.invoice.line','line_line_rel','print_line_id','line_id',u'发票明细')
     all_quantity = fields.Float(u'数量', compute="_get_all_info")
     all_price_subtotal = fields.Float(u'金额', compute="_get_all_info")
-    name = fields.Many2one('purchase.order',u'源单据')
+    name = fields.Char(u'源单据')
 
     # 获取小计数据
     def _get_all_info(self):

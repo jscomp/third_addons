@@ -99,7 +99,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                小计：<span t-field="l_tfs.name.name"/>
+                                                小计：<span t-field="l_tfs.name"/>
                                             </td>
                                             <td class="text-right">
                                                 <span t-field="l_tfs.all_quantity"/>
