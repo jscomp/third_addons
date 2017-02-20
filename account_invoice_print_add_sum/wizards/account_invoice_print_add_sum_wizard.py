@@ -4,6 +4,21 @@
 from openerp import api, fields, models, _
 from openerp.exceptions import UserError, ValidationError
 
+class tfs_account_invoice_line_inherit(models.Model):
+    """
+        增加加税的合计
+    """
+
+    _inherit = 'account.invoice.line'
+
+    tfs_price_subtotal = fields.Float(u'加税小计', compute="_get_tfs_price_subtotal")
+
+    def _get_tfs_price_subtotal(self):
+        for ids in self:
+            ids.tfs_price_subtotal = ids.price_subtotal
+            for tax in ids.invoice_line_tax_ids:
+                ids.tfs_price_subtotal += ids.price_subtotal * tax.amount/100
+
 class account_invoice_print_add(models.TransientModel):
     """
         打印对账单
@@ -23,6 +38,8 @@ class account_invoice_print_add(models.TransientModel):
                 invoice_line_dict[line.purchase_id] = [(4,line.id)]
         if invoice_line_dict:
             line_obj = self.env['account.invoice.print.add.line']
+            line_ids = line_obj.search([('add_id','=',self.id)])
+            line_ids.unlink()
             for key, value in invoice_line_dict.items():
                 if key:
                     if key.partner_ref:
@@ -54,4 +71,4 @@ class account_invoice_print_add_line(models.TransientModel):
             ids.all_price_subtotal = 0
             for line in ids.invoice_line_ids:
                 ids.all_quantity += line.quantity
-                ids.all_price_subtotal += line.price_subtotal
+                ids.all_price_subtotal += line.tfs_price_subtotal
