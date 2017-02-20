@@ -64,7 +64,7 @@
                                     <tr>
                                         <th>说明</th>
                                         <th class="text-right">数量</th>
-                                        <th class="text-right">单位价格</th>
+                                        <th class="text-right">单价</th>
                                         <th t-if="display_discount" class="text-right"
                                             groups="sale.group_discount_per_so_line">折扣(%)
                                         </th>
