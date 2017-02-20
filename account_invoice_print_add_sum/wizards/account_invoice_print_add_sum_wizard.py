@@ -17,7 +17,8 @@ class tfs_account_invoice_line_inherit(models.Model):
         for ids in self:
             ids.tfs_price_subtotal = ids.price_subtotal
             for tax in ids.invoice_line_tax_ids:
-                ids.tfs_price_subtotal += ids.price_subtotal * tax.amount/100
+                if tax.price_include:
+                    ids.tfs_price_subtotal = ids.quantity * ids.price_unit
 
 class account_invoice_print_add(models.TransientModel):
     """
